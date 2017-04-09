@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<meta name="format-detection" content="telephone=no" />
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<title>运单详情页</title>
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/mui.picker.min.css" rel="stylesheet" />
+		<style>
+			body {
+				overflow: scroll;
+				overflow-y: hidden;
+				background-color: #fff;
+			}
+			
+			.oct_detail {
+				background-color: #fff;
+			}
+			
+			.mui-table-view label {
+				width: 30%;
+				float: left;
+				display: inline-block;
+			}
+			
+			.mui-table-view span {
+				width: 70%;
+				display: inline-block;
+				float: left;
+				word-wrap:break-word; 
+				word-break:break-all; 
+				overflow: hidden;
+			}
+			
+			.mui-table-view i {
+				color: #FF0000;
+			}
+			
+			
+			
+			
+		</style>
+	</head>
+	<body>
+		<header class="mui-bar mui-bar-nav">
+		    <a id="detail_closed" class="mui-icon mui-icon-left-nav mui-pull-left"></a>
+		    <h1 class="mui-title">物流信息详情</h1>
+		</header>
+		<div class="mui-content">
+				<div class="oct_detail" id="oct_detail">
+					<ul class="mui-table-view">
+				 		<li class="mui-table-view-cell"><label>收货单位:</label><span></span></li>
+		         		<li class="mui-table-view-cell"><label>收货人:</label><span></span></li>
+		         		<li class="mui-table-view-cell"><label>联系电话:</label><span></span></li>
+		         		<li class="mui-table-view-cell"><label>订单号:</label><span></span></li>
+		         		<li class="mui-table-view-cell"><label>物流单号:</label><span></span></li>
+		         		<li class="mui-table-view-cell"><label>物流名称:</label><span></span></li>
+		         		<li style="display: none;" class="mui-table-view-cell"><label>箱数:</label><span><i></i>箱</span></li>
+		         		<li style="display: none;" class="mui-table-view-cell"><label>重量:</label><span><i></i>kg</span></li>
+		         		<li class="mui-table-view-cell"><label>状态:</label><span></span></li>
+		         		<li class="mui-table-view-cell"><label>备注:</label><span></span></li>
+					</ul>
+					
+					<div class="mui-button-row">
+						<button id="goReceived" class="mui-btn mui-btn-danger mui-btn-block" style="display: none;">签收</button>
+					</div>
+				</div>
+				
+				
+	
+			
+		</div>
+		<script src="js/mui.min.js"></script>
+		<script src="js/jquery-1.7.2-min.js"></script>
+		<script src="js/mui.picker.min.js"></script>
+		<script src="js/time.js"></script>
+		<script>
+		$(document).ready(function(){
+
+			var storage = window.localStorage;
+			var ReceivedData = '';
+			
+			$.ajax({
+				type:"get",
+				url:storage.baseUrl + "/client/item",
+				dataType:"json",
+				data:{
+						deliveryType:storage.delivery_type,
+						recordId:storage.id
+					
+				},
+				success:function(data){					
+					var result = data.data;
+					ReceivedData = result;
+					$(".oct_detail").find('span').eq(0).text(result.storeName);
+					$(".oct_detail").find('span').eq(1).text(result.contact);
+					$(".oct_detail").find('span').eq(2).text(result.tel);
+					$(".oct_detail").find('span').eq(3).text(result.orderId);
+					//物流：显示总箱数
+					if (storage.delivery_type == "delivery") {
+
+						$(".oct_detail").find('span').eq(4).text(result.logisticNumber);
+						$(".oct_detail").find('span').eq(5).text(result.logisticName);
+						$(".oct_detail").find('li').eq(6).css('display','block');
+						//总箱数
+						var boxNums = result.box1Nums+result.box2Nums+result.box3Nums+result.box4Nums+result.box5Nums+result.box6Nums;
+						$(".oct_detail").find('span').eq(6).find('i').eq(0).text(boxNums);
+						
+					} else if(storage.delivery_type == "express"){//快递：显示重量
+						$(".oct_detail").find('span').eq(4).text(result.expressNumber);
+						$(".oct_detail").find('span').eq(5).text(result.expressName);
+						$(".oct_detail").find('li').eq(7).css("display","block");
+						$(".oct_detail").find('li').eq(7).find('i').text(result.weight);
+					}
+					
+					//当状态为已发货显示签收按钮，否则隐藏
+					var status = "";
+					if (result.status == "delivered"){
+						status = "已发货";
+						$("#goReceived").css('display',"block");
+					} else {
+						$("#goReceived").css('display','none');
+						status = "已签收";
+						
+					}
+					//百盛用户，签收按钮为隐藏
+					if (storage.type == 'baisheng') {
+						$("#goReceived").css('display','none');
+					}
+					
+					
+						$(".oct_detail").find('span').eq(8).text(status);
+						if (result.memo == null) {
+							result.memo = "";
+						}
+						$(".oct_detail").find('span').eq(9).text(result.memo);
+						
+						//设置外层html的iframe的高
+						$(window.parent.document).find("#son").height(0).height($(document).height());
+					
+				},
+				error:function(data){
+					console.error(data);
+				}
+			});
+						
+			
+			//返回按钮
+			$("#detail_closed").on("tap",function(){				
+				$('#modal', window.parent.document).toggleClass('mui-active');
+			});
+			
+			//签收按钮的点击事件
+			$("#goReceived").on("tap",function(){
+				var btnArray = ['取消', '确定'];
+			mui.confirm("确认签收吗？确认后将无法更改","提示",btnArray,function(e){
+				if (e.index==1) {
+					
+					/*签收时间只能为发货时间-当前日期之间*/
+					
+					//ajax接收到的发货时间 时间戳转型
+					var optionsJson = '{}';
+					var options = JSON.parse(optionsJson);
+					var deli_time = time2Date(ReceivedData.deliveredTime).replace(/-/g,'/');
+					var deli_date = new Date(deli_time);
+					
+					//当前时间截取年月日
+					var Ndate = new Date();
+					var thisYear = Ndate.getFullYear();
+					var thisMonth = Ndate.getMonth();//月份是从0开始计算
+					var thisDay = Ndate.getDate();
+
+					//日期控件
+					var dtPicker = new mui.DtPicker({
+						type: "date",
+						beginDate: new Date(deli_date.getFullYear(), deli_date.getMonth(), deli_date.getDate()),//设置开始日期 
+   						endDate: new Date(thisYear, thisMonth, thisDay),//设置结束日期 		
+					});
+				
+				//选择日期并签收
+				dtPicker.show(function(rs){
+//					console.log(rs);
+					var unixTime = get_unix_time(rs.text);
+					
+					$.ajax({
+						type:"get",
+						url:storage.baseUrl + "/client/status",
+						dataType:"json",
+						data:{
+							id:ReceivedData.id,
+							deliveryType:storage.delivery_type,
+							contact:ReceivedData.contact,
+							time:unixTime
+						},
+						success:function(data){
+
+							if (data.success) {
+								 var total = storage.delivered_num;
+			 					total--;
+			 					storage.setItem("delivered_num",total);
+			 					$("#mui-badge").html(total);
+			 					
+								$("#goReceived").html("已签收");
+								$("#goReceived").attr("disabled","true");
+								$("#goReceived").css({"background-color":"#919191","border-color":"#919191"});
+								$(".oct_detail").find('span').eq(8).text("已签收");
+								
+								//根据数据修改card样式
+								var mychosed = $('#modal', window.parent.document).parent().find('.mui-card.mui-active');
+
+								mychosed.find('.mui-card-content').find('span').eq(1).text(time2Date(unixTime));
+								mychosed.find(".goReceive").html("已签收");
+								mychosed.find(".goReceive").attr("disabled","true");
+								mychosed.find(".goReceive").css({"background-color":"#919191","border-color":"#919191"})
+								
+								
+								var deliv_Number = $('#modal', window.parent.document).parents().find("#mui-badge").html();
+								
+								if (deliv_Number > 1) {
+									deliv_Number--;
+									$('#modal', window.parent.document).parents().find("#mui-badge").html(deliv_Number);
+									
+								} else if (deliv_Number == 1) {
+									$('#modal', window.parent.document).parents().find("#mui-badge").hide();
+								}
+								
+							
+							}
+						},
+						error:function(err){
+							mui.alert("签收失败");
+							console.error(err);
+						}
+				
+				
+					});
+				});
+					
+				}
+			
+			});
+		});
+	
+	});
+		</script>
+	</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>十月妈咪</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<meta name="format-detection" content="telephone=no" />
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<link href="stylesheets/mui.min.css" rel="stylesheet" />
+		<link href="stylesheets/main.css" rel="stylesheet" />
+		<link href="stylesheets/iconfont.css" rel="stylesheet" />
+	</head>
+	<body>
+		<header class="mui-bar mui-bar-nav">
+		<!--    <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>-->
+		    <h1 class="mui-title">十月妈咪物流</h1>
+		</header>
+
+		<nav class="mui-bar mui-bar-tab">
+			<a class="mui-tab-item" id="tabber_with_list">
+				<span class="mui-icon mui-icon-chatboxes"><span id="mui-badge" class="mui-badge"></span></span>
+				<span class="mui-tab-label">记录</span>
+			</a>
+			<a class="mui-tab-item" id="tabber_with_search">
+				<span class="mui-icon mui-icon-search"></span>
+				<span class="mui-tab-label">查询</span>
+				
+			</a>
+			<a class="mui-tab-item mui-active" href="#tabbar-with-me">
+				<span class="mui-icon mui-icon-contact"></span>
+				<span class="mui-tab-label">我</span>
+			</a>
+			<a class="mui-tab-item" id="tabber_with_setting">
+				<span class="mui-icon mui-icon-paperplane"></span>
+				<span class="mui-tab-label">退货</span>
+			</a>
+		</nav>
+
+		<div class="mui-content">
+	
+			<div id="tabbar-with-me" class="mui-control-content mui-active">
+				<ul class="mui-table-view mui-table-view-striped mui-table-view-condensed">
+					<li class="mui-table-view-cell">
+						<div class="mui-slider-cell">
+							<div class="oa-contact-cell mui-table">
+								<div class="oa-contact-avatar mui-table-cell">
+									<img src="img/60x60.gif" />
+								</div>
+								<div class="oa-contact-content mui-table-cell">
+									<div class="mui-clearfix">
+										<h4 class="oa-contact-name"></h4>
+										<span class="oa-contact-position mui-h6"></span>
+									</div>
+									<p class="oa-contact-id mui-h6"></p>
+								</div>
+							</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+			
+			<ul class="mui-table-view">
+					<li class="mui-table-view-cell" id="address_manage">
+						<a class="mui-navigate-right">
+							用户信息与地址管理
+						</a>
+					</li>
+					
+					<li class="mui-table-view-cell" id="change_password">
+						<a class="mui-navigate-right">
+							密码修改
+						</a>
+					</li>
+				</ul>
+				
+				<ul class="mui-table-view" style="margin-top: 25px;">
+					<li class="mui-table-view-cell" id="logout">
+						<a style="text-align: center;color: #FF3B30;">
+							退出登录
+						</a>
+					</li>
+				</ul>
+			
+		    
+		</div>
+		
+		<script src="javascripts/mui.min.js"></script>
+		<script src="javascripts/jquery-1.7.2-min.js"></script>
+		<script>
+			var storage = window.localStorage;
+			//用户信息加载
+			$(".oa-contact-name").html(storage.contact);
+			$(".oa-contact-position").html(storage.storeName);
+			$(".oa-contact-id").html(storage.username);
+			
+			//记录页icon角标
+			if (storage.delivered_num == 0) {
+				$("#mui-badge").toggle();
+			} else{
+				$("#mui-badge").html(storage.delivered_num);
+			}
+			
+			//tabbar页面跳转
+			mui(".mui-bar-tab").on("tap","#tabber_with_list",function(){
+			location.href = "index.html";
+			});
+			
+			mui(".mui-bar-tab").on("tap","#tabber_with_search",function(){
+			location.href = "search.html";
+			});
+			
+			mui(".mui-bar-tab").on("tap","#tabber_with_setting",function(){
+			location.href = "setting.html";
+			});
+			
+			//修改密码
+			$("#change_password").on("tap",function(){
+				location.href = "passwordChange.html";
+			});
+			
+			//用户信息与地址管理
+			$("#address_manage").on("tap",function(){
+				location.href = "infmodApplication.html";
+			});
+			/*登出*/
+			$("#logout").on("tap",function(){
+				location.href = "client_login.html";
+			});
+			
+		</script>
+
+	</body>
+</html>
+
+
+

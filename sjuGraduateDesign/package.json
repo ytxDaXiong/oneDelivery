@@ -1,0 +1,23 @@
+{
+  "name": "sjugraduatedesign",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "dependencies": {
+    "body-parser": "~1.15.2",
+    "cookie-parser": "~1.4.3",
+    "cookie-session": "^2.0.0-beta.1",
+    "express-session": "latest",
+    "debug": "~2.2.0",
+    "ejs": "~2.5.2",
+    "express": "~4.14.0",
+    "express-router": "0.0.1",
+    "express-static": "^1.0.3",
+    "multer": "^1.3.0",
+    "morgan": "~1.7.0",
+    "serve-favicon": "~2.3.0",
+    "mysql": "latest"
+  }
+}

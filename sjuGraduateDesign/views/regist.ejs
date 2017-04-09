@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html class="ui-page-login">
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title></title>
+		<link href="/stylesheets/mui.min.css" rel="stylesheet" />
+		<link href="/stylesheets/style.css" rel="stylesheet" />
+		<style>
+			.area {
+				margin: 20px auto 0px auto;
+			}
+			.mui-input-group:first-child {
+				margin-top: 20px;
+			}
+			.mui-input-group label {
+				width: 22%;
+			}
+			.mui-input-row label~input,
+			.mui-input-row label~select,
+			.mui-input-row label~textarea {
+				width: 78%;
+			}
+			.mui-checkbox input[type=checkbox],
+			.mui-radio input[type=radio] {
+				top: 6px;
+			}
+			.mui-content-padded {
+				margin-top: 25px;
+			}
+			.mui-btn {
+				padding: 10px;
+			}
+
+			#message_key {
+				width: 50%;
+			}
+
+			#reget_key {
+				width: 50%;
+
+			}
+			
+		</style>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">注册</h1>
+		</header>
+		<div class="mui-content">
+			<form class="mui-input-group">
+				<div class="mui-input-row">
+					<label>+86</label>
+					<input id='tel' type="tel" class="mui-input-clear mui-input" placeholder="请输入手机号">
+				</div>
+				<div class="mui-input-row">
+					<input id='message_key' type="text" class="mui-input-clear mui-input" placeholder="输入验证码">
+					<input id="reget_key" class="mui-btn mui-btn-primary mui-btn-block mui-btn-outlined"
+					value="免费获取验证码" onclick="settime(this)">
+				</div>
+				
+			</form>
+			<form class="mui-input-group" style="margin-top: 10px">
+				<div class="mui-input-row">
+					<input id='password' type="password" class="mui-input-clear mui-input" placeholder="请输入密码">
+				</div>
+			</form>
+	
+
+			<div class="mui-content-padded">
+				<button id='reg' class="mui-btn mui-btn-block mui-btn-primary">注册</button>
+			</div>
+		<!-- 	<div class="mui-content-padded">
+				<p>注册真实可用，注册成功后的用户可用于登录，但是示例程序并未和服务端交互，用户相关数据仅存储于本地。</p>
+			</div> -->
+		</div>
+		<script src="/javascripts/mui.min.js"></script>
+		<script src="/javascripts/jquery-1.7.2-min.js"></script>
+		<script type="text/javascript">
+			var countdown = 60;
+			function settime(val) {
+				if (countdown == 0) {
+					val.removeAttribute("disabled");
+					val.value="免费获取验证码";
+					countdown = 60;
+					return;
+				} else {
+					val.setAttribute("disabled", true);
+					val.value="重新发送(" + countdown +")";
+					countdown--;
+				}
+
+				setTimeout(function() {
+					settime(val)
+				},1000)
+			}
+			//发送验证码
+			$("#reget_key").on("tap",function(){
+				console.log(111);
+				var tel_number = $("#tel").val();
+				$.ajax({
+					type:"POST",
+					url:"/regist/registData",
+					dataType:"json",
+					async:true,
+					data:{
+						tel_number:tel_number
+					},
+					success:function(result){
+						console.log(result);
+			
+					},
+					error:function(err){
+						console.log(err);
+					}
+				});
+			});
+
+			$("#reg").on("tap",function(){
+				var phone_number = $("#tel").val();
+				var message_key = $("#message_key").val();
+				var password = $("#password").val();
+				if (!phone_number) {
+					mui.toast("请输入手机号码！");
+				} else {
+					if (!message_key) {
+						mui.toast("请输入短信验证码！");
+					} else {
+						if (!password) {
+							mui.toast("密码不能为空！");
+						} else {
+							$.ajax({
+							type:"POST",
+							url:"/regist",
+							dataType:"json",
+							async:true,
+							data:{
+								phoneNumber:phone_number,
+								verifyCode:message_key,
+								password:password
+							},
+							success:function(data){
+								console.log(data);
+								if (data.code == 200) {
+									var btnArray = ['取消', '确定'];
+								mui.confirm(data.message + " 去完善信息","提示",btnArray,function(e){
+									if (e.index == 1) {
+										location.href = "/regist/updateUserInfo?phoneNumber=" + phone_number;
+									}
+
+								});
+
+								} else {
+									if (data.code == 400) {
+										mui.alert(data.message);
+									} else {
+										mui.alert("其他错误");
+									}
+								}
+								
+							},
+							error:function(err){	
+								console.log(err);
+							}
+						});
+
+						}
+						
+					}
+				}
+				
+				
+			});
+		</script>
+<!-- 		<script src="/javascripts/app.js"></script> -->
+	<!-- 	<script>
+			(function($, doc) {
+				$.init();
+					var settings = app.getSettings();
+					var regButton = doc.getElementById('reg');
+					var accountBox = doc.getElementById('account');
+					var passwordBox = doc.getElementById('password');
+					var passwordConfirmBox = doc.getElementById('password_confirm');
+					var emailBox = doc.getElementById('email');
+					regButton.addEventListener('tap', function(event) {
+						var regInfo = {
+							account: accountBox.value,
+							password: passwordBox.value,
+							email: emailBox.value
+						};
+						var passwordConfirm = passwordConfirmBox.value;
+						if (passwordConfirm != regInfo.password) {
+							plus.nativeUI.toast('密码两次输入不一致');
+							return;
+						}
+						app.reg(regInfo, function(err) {
+							if (err) {
+								plus.nativeUI.toast(err);
+								return;
+							}
+						});
+					});
+			}(mui, document));
+		</script> -->
+	</body>
+
+</html>

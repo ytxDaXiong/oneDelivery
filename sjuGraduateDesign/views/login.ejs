@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html class="ui-page-login">
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>壹物流签收系统</title>
+		<link href="/stylesheets/mui.min.css" rel="stylesheet" />
+		<link href="/stylesheets/main.css" rel="stylesheet" />
+		<style>
+			.area {
+				margin: 20px auto 0px auto;
+			}
+			
+			.mui-input-group {
+				margin-top: 20px;
+			}
+			
+			.mui-input-group label {
+				width: 22%;
+			}
+			
+			.mui-input-row label~input,
+			.mui-input-row label~select,
+			.mui-input-row label~textarea {
+				width: 78%;
+			}
+			
+			.mui-checkbox input[type=checkbox],
+			.mui-radio input[type=radio] {
+				top: 6px;
+			}
+			
+			.mui-content-padded {
+				margin-top: 25px;
+			}
+			
+			.mui-btn {
+				padding: 10px;
+			}
+			
+			.link-area {
+				display: block;
+				margin-top: 25px;
+				text-align: center;
+			}
+			
+			.spliter {
+				color: #bbb;
+				padding: 0px 8px;
+			}
+			
+			.oauth-area {
+				position: absolute;
+				bottom: 20px;
+				left: 0px;
+				text-align: center;
+				width: 100%;
+				padding: 0px;
+				margin: 0px;
+			}
+			
+			.oauth-area .oauth-btn {
+				display: inline-block;
+				width: 50px;
+				height: 50px;
+				background-size: 30px 30px;
+				background-position: center center;
+				background-repeat: no-repeat;
+				margin: 0px 20px;
+				/*-webkit-filter: grayscale(100%); */
+				border: solid 1px #ddd;
+				border-radius: 25px;
+			}
+			
+			.oauth-area .oauth-btn:active {
+				border: solid 1px #aaa;
+			}
+			
+			.oauth-area .oauth-btn.disabled {
+				background-color: #ddd;
+			}
+		</style>
+
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<h1 class="mui-title">登录</h1>
+		</header>
+		<div class="mui-content">
+			<form id='login-form' class="mui-input-group">
+				<div class="mui-input-row">
+					<label>账号</label>
+					<input id='account' type="text" class="mui-input-clear mui-input" placeholder="请输入账号">
+				</div>
+				<div class="mui-input-row">
+					<label>密码</label>
+					<input id='password' type="password" class="mui-input-clear mui-input" placeholder="请输入密码">
+				</div>
+			</form>
+
+			<div class="mui-content-padded">
+				<button id='login' class="mui-btn mui-btn-block mui-btn-primary">登录</button>
+				<div class="link-area"><a id='reg' href="/regist">注册账号</a> <span class="spliter">|</span> <a id='forgetPassword' href="/forgetPassword">忘记密码</a>
+				</div>
+			</div>
+
+		</div>
+		<script src="/javascripts/mui.min.js"></script>
+		<script src="/javascripts/jquery-1.7.2-min.js"></script>
+		<script src="/javascripts/md5.js"></script>
+		<script>
+			$(document).ready(function () {
+
+				var storage = window.localStorage;
+				$("#login").click(function(){
+					var account = $('#account').val();
+					//密码中的字母转换成小写
+					var lowerPsd = $("#password").val().toLowerCase();
+					// var password = hex_md5(lowerPsd);
+					var password = lowerPsd;
+
+					if (!account) {
+						mui.alert("请输入账号");
+						return;
+					}
+
+					// if (password) {
+					// 	if (password.length < 6) {
+					// 		mui.alert("密码不能少于6位");
+					// 		return;
+					// 	}
+					// } else {
+					// 		mui.alert('请输入6~16位密码');
+					// 		return;
+					// 	}
+					
+				
+
+					$.ajax({
+						type: 'POST',
+						url: 'login',   //请求的url地址，这是相对于现在的位置的地址
+						dataType: 'json',
+						async:true,   //请求是否为异步
+						data: {
+							'username': account,
+							'password': password
+						},
+						beforeSend: function() {   //请求前的处理
+
+						},
+						success: function(response) {
+							//处理成功请求
+							var errMsg = '登录失败';
+							console.log(response);
+							if (response) {
+								if (response.code == 200 && response.userId) {
+									storage.setItem("storeName",response.storeName);
+									storage.setItem("userId",response.userId);
+									location.href = encodeURI('/index?storeName=' + response.storeName + '&userId=' + response.userId);
+									return;
+								}
+
+								if (response.message) {
+									errMsg = response.message;
+								}
+							}
+
+							mui.alert(errMsg);		
+						},
+						error: function(err){
+							console.log(err);
+							mui.alert('请求失败,请重试！');
+						},
+
+						complete: function() {
+
+						}
+					});
+				});
+			});
+			
+		</script>
+		
+
+	</body>
+
+</html>
