@@ -4,7 +4,14 @@ var App = require('alidayu-node');
 var app = new App('23569814', 'a7e5d8dff27ec676dc3eb22f37efc271');
 
 var MySQLClient = require('./mysql_util.js');
-var mysqlClinet = new MySQLClient();
+var mysqlClient = new MySQLClient();
+mysqlClient.connect(function (err) {
+	if (err) {
+		console.log(err.stack);
+	} else {
+		// console.log('mysql connect success');
+	}
+});
 var Map = require('./data_structure/Map.js');
 var sha = require('./degist_util.js');//加密
 /*regist page*/
@@ -86,7 +93,7 @@ router.post("/", function(req, res, next) {
 
 		//检查手机号码是否已经注册
 		if (phoneNumber) {
-			mysqlClinet.exec("SELECT id FROM delivery_user_address WHERE tel = ?",[phoneNumber], function(err, rows, fields) {
+			mysqlClient.exec("SELECT id FROM delivery_user_address WHERE tel = ?",[phoneNumber], function(err, rows, fields) {
 				if (err) {
 					console.log(err.stack);
 					var result = {
@@ -97,7 +104,8 @@ router.post("/", function(req, res, next) {
 					return;
 
 				} else {
-					if (rows) {
+					console.log(rows.length);
+					if (rows.length != 0) {
 						var result = {
 							code: 400,
 							message: '该号码已注册'
@@ -109,7 +117,7 @@ router.post("/", function(req, res, next) {
 						timestamp = timestamp / 1000;//时间戳
 						md5_password = sha('md5',password);
 						if (phoneNumber && verifyCode && verifyCodeMap.get(phoneNumber) == verifyCode) {
-							mysqlClinet.exec("INSERT INTO delivery_user_address (user_code, contact, tel, last_update_time, re_password, store_pwd, store_user_name) VALUES (?, ?, ?, ?, ?, ?, ?)",[phoneNumber,phoneNumber,phoneNumber,timestamp,password,md5_password,phoneNumber], function(err, rows, fields) {
+							mysqlClient.exec("INSERT INTO delivery_user_address (user_code, contact, tel, last_update_time, re_password, store_pwd, store_user_name) VALUES (?, ?, ?, ?, ?, ?, ?)",[phoneNumber,phoneNumber,phoneNumber,timestamp,password,md5_password,phoneNumber], function(err, rows, fields) {
 								if (err) {
 									console.log(err.stack);
 									var result = {
@@ -155,7 +163,7 @@ router.post('/updateUserInfo', function(req, res, next) {
 	var phoneNumber = req.body.phoneNumber;
 	var info = req.body;
 	if (phoneNumber) {
-		mysqlClinet.exec("UPDATE delivery_user_address SET user_code = ?, contact = ?, address = ?, store_name = ?, notice = ? WHERE tel = ?", [info.userCode, info.contact, info.address, info.storeName, info.notice, info.phoneNumber], function(err, rows, fields){
+		mysqlClient.exec("UPDATE delivery_user_address SET user_code = ?, contact = ?, address = ?, store_name = ?, notice = ? WHERE tel = ?", [info.userCode, info.contact, info.address, info.storeName, info.notice, info.phoneNumber], function(err, rows, fields){
 			if (err) {
 				console.log(err.stack);
 				var result = {

@@ -73,7 +73,7 @@ router.post('/index', function(req, res, next) {
  	var pageNo = req.body.pageNo;
  	var pageSize = req.body.pageSize;
 
- 	var data = {currentPage:pageNo,totalPages:pageSize};
+ 	var data = {currentPage:pageNo,totalPages:0};
  	console.log(data.currentPage,data.totalPages);
  	mysqlClient.exec('select count(1) count from express_record where store_name = ?', [req.body.storeName],function(err,rows,fields) {
  		if (err) {
@@ -150,16 +150,6 @@ router.post('/index', function(req, res, next) {
  });	
 
 
-
-
-
-
-
-
-/*me page*/
-router.get('/me', function(req, res, next) {
-	res.render('me', {})
-});
 
 /* 退货 */
 router.get('/returnGoods', function(req, res, next) {

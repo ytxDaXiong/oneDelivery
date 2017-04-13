@@ -4,14 +4,18 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var session = require('express-session')
+var MySQLStore = require('express-mysql-session')(session);
+var config = require('./config/config');
 var bodyParser = require('body-parser');
 
 var index = require('./routes/index');
 var login = require('./routes/login');
 var regist = require('./routes/regist');
+var Users = require('./routes/users');
 var receivedGoods = require('./routes/receivedGoods');
 var forgetPassword = require('./routes/forgetPassword');
 var search = require('./routes/search');
+var detailInfo = require('./routes/detail_info');
 var app = express();
 
 // view engine setup
@@ -33,20 +37,26 @@ app.use(express.static(path.join(__dirname, 'public')));
 //     req.session.touch();
 //     next();
 // });
+
+var sessionStore = new MySQLStore(config.db);
 app.use(session({
 	secret: '12345',
+  name: 'ytx',
 	cookie:{maxAge:30 * 60 * 1000},//有效时间10分钟
 	resave:false,
-	rolling:true,
-	saveUninitialized: true
+	// rolling:true,
+	saveUninitialized: true,
+  store: sessionStore
 }));
 
 app.use('/', index);
 // app.use('/login', login);
+app.use('/users', Users);
 app.use('/regist', regist);
 app.use('/received', receivedGoods);
 app.use('/forgetPassword', forgetPassword);
 app.use('/search', search);
+app.use('/detailInfo',detailInfo);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

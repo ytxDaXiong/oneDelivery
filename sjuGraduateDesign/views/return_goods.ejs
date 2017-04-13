@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="utf-8" />
-		<title>十月妈咪</title>
+		<title>壹物流</title>
 		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 		<meta name="format-detection" content="telephone=no" />
 
@@ -104,30 +104,17 @@
 			
 			//tabbar页面跳转
 			mui(".mui-bar-tab").on("tap","#tabber_with_list",function(){
-			location.href = "index.html";
+			location.href = "/index";
 			});
 			
 			mui(".mui-bar-tab").on("tap","#tabber_with_search",function(){
-			location.href = "search.html";
+			location.href = "/search";
 			});
 			
 			mui(".mui-bar-tab").on("tap","#tabber_with_setting",function(){
-			location.href = "setting.html";
+			location.href = "/users/me";
 			});
 			
-			//修改密码
-			$("#change_password").on("tap",function(){
-				location.href = "passwordChange.html";
-			});
-			
-			//用户信息与地址管理
-			$("#address_manage").on("tap",function(){
-				location.href = "infmodApplication.html";
-			});
-			/*登出*/
-			$("#logout").on("tap",function(){
-				location.href = "client_login.html";
-			});
 			
 		</script>
 

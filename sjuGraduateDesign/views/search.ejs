@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
-		<title>壹物流管理系统</title>
+		<title>壹物流</title>
 		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 		<meta name="format-detection" content="telephone=no" />
 
@@ -192,63 +192,73 @@
 		
 		function search_ajax(condJson){
 			$.ajax({
-					type:"get",
-					url:storage.baseUrl + "/client/list",
+					type:"POST",
+					url:"/search/searchCommand",
 					dataType:"json",
 					data:{
-						pageNo:0,
-						pageSize:20,
+						pageNo:1,
+						pageSize:10,
 						condition:condJson,
-						userCode:storage.userCode,
+						// userCode:storage.userCode,
 						storeName:storage.storeName
 					},
-					success:function(data){
-
-							if (data.list.length == 0) {
-								mui.alert("还没有数据哦！");
+					success:function(result){
+							var data = result.items;
+							console.log(data);
+							if (data.length == 0) {
+								mui.alert(result.message);
 							}
 							
 							//加载物流数据
-							$.each(data.list,function(i){
-								var deliv_name = data.list[i].delivery_name;
-								var deliv_number = data.list[i].delivery_number;
-								var deliv_time = time2Date(data.list[i].delivered_time);
-								var accept_time = data.list[i].accepted_time;
+							$.each(data,function(i){
+								var deliv_name = data[i].express_name;
+								var deliv_number = data[i].express_number;
+								var deliv_time = time2Date(data[i].delivered_time);
+						
+								var accept_time = data[i].accepted_time;
+								var Did = data[i].id;
+								
 								if (accept_time) {
-									accept_time = time2Date(data.list[i].accepted_time);
-
+									accept_time = time2Date(data[i].accepted_time);
+									
 								}else {
-									accept_time = "还未签收";
-
-								}
-								var Did = data.list[i].id;
-								var contact = data.list[i].contact;
-								var deliv_type = data.list[i].delivery_type;
-								var storeName = data.list[i].store_name;
-								var reStatus = null;
-								if (data.list[i].status == "accepted"||data.list[i].status == "accounted") {
-									reStatus = '<span class="mui-card-link"><button type="button" class="mui-btn mui-btn-primary goReceive receivedBtn" disabled="disabled">已签收</button></span>';
-								} else {
-									if (data.list[i].status == "delivered") {
-										reStatus = '<span class="mui-card-link"><button type="button" class="mui-btn mui-btn-primary goReceive">签收</button></span>';
-									}
+									accept_time = "您还未签收";
 									
 								}
-								
+						
+								var contact = data[i].contact;
+								var deliv_type = data[i].delivery_type;
+								var reStatus = null;						
+								switch (data[i].status) 
+								{
+									case "accepted":
+										reStatus = '<span class="mui-card-link"><button type="button" class="mui-btn mui-btn-success goReceive" disabled="disabled">已签收</button></span>';
+										break;
+									case "accounted":
+										reStatus = '<span class="mui-card-link"><button type="button" class="mui-btn mui-btn-warning goReceive" disabled="disabled">已核账</button></span>';
+										break;
+									case "delivered":
+										reStatus = '<span class="mui-card-link"><button type="button" class="mui-btn mui-btn-primary goReceive" disabled="disabled">未签收</button></span>';
+										break;
+									case "waiting":
+										reStatus = '<span class="mui-card-link"><button type="button" class="mui-btn mui-btn-royal goReceive" disabled="disabled">未发货</button></span>';
+										break;
+
+								}
 								var card_header = '<div class="mui-card-header"><label>' +deliv_name+ '</label><label>单号：<span>' +deliv_number+ '</span></label></div>';
-								var card_content = '<div class="mui-card-content"><div class="mui-card-content-inner"><label style="width: 50%; float: left;">发货时间:<br> <span>' +deliv_time+ '</span></label><label style="width: 50%;">收货时间:<br><span>'+accept_time+'</span></label></div></div>';
+								var card_content = '<div class="mui-card-content"><div class="mui-card-content-inner"><label style="width: 50%; float: left;">发货时间:<br> <span id="delivTime">' +deliv_time+ '</span></label><label style="width: 50%;">收货时间:<br><span id="acceptTime">'+accept_time+'</span></label></div></div>';
 								var card_footer = '<div class="mui-card-footer"><label class="mui-card-link" style="color:#000"><label>收货人:&nbsp</label><span id="oct_contact">'+contact+'</span></label><label class="mui-card-link"><input id="U_id" value=" '+Did+'   " type="hidden"></label><label class="mui-card-link"><input id="U_del" value="'+deliv_type+'" type="hidden"></label> '+reStatus+' </div>';
 								
 								
-								var appendCard = '<div class="mui-card"><a href = "#modal">'+card_header+card_content+card_footer+'</a></div>';
+								var appendCard = '<div class="mui-card">'+card_header+card_content+card_footer+'</a></div>';
 														
 								$("#search_result").append(appendCard);
 				
 							});		
 								
 					},
-					error:function(data){
-						mui.alert(data);
+					error:function(err){
+						mui.alert(err);
 					}
 				});
 			
@@ -263,7 +273,7 @@
 		
 		/*滚动加载*/
 		var stop = true;//防止重复加载
-		var i = 1;
+		var i = 2;
 		$(window).scroll(function(){
 			
 			totalheight = parseFloat($(window).height()) + parseFloat($(window).scrollTop());//浏览器窗口的高度+当前这个页面超出窗口最上端的高度
@@ -276,60 +286,86 @@
 				$("#j_loadmore").addClass('enabled');
 				
 				$.ajax({
-					type:"get",
-					url:storage.baseUrl + "/client/list",
+					type:"POST",
+					url:"/search/searchCommand",
 					dataType:"json",
 					data:{
 						pageNo:i,
-						pageSize:20,
+						pageSize:10,
 						condition:data_array[0],
-						userCode:storage.userCode,
+						// userCode:storage.userCode,
 						storeName:storage.storeName
 					},
-					success:function(data){
+					success:function(result){
 				
-						if (data.list.length == 0) {
+						console.log(result);
+						var data = result.items;
+						// console.log(result.items);
+						// console.log(result.items.length);
+						if (data.length == 0) {
 							$("#j_loadmore").removeClass('enabled');
 							var endTips = '<div class="y_loading_easy" style="display: block;" ><span>没有更多了！</span></div>';
 							$("#search_result").append(endTips);
 							return;
 						}
-							var appendCardM = '';
-						$.each(data.list,function(j){
-								var deliv_name = data.list[j].delivery_name;
-								var deliv_number = data.list[j].delivery_number;
-								var deliv_time = time2Date(data.list[j].delivered_time);
-								var accept_time = data.list[j].accepted_time;
-								var Did = data.list[j].id;
-
+						var appendCardM = '';
+						$.each(data,function(j){
+								
+								var deliv_name = data[j].express_name;
+								var deliv_number = data[j].express_number;
+								var deliv_time = time2Date(data[j].delivered_time);
+						
+								var accept_time = data[j].accepted_time;
+								var Did = data[j].id;
+								
 								if (accept_time) {
-									accept_time = time2Date(data.list[j].accepted_time);
+									accept_time = time2Date(data[j].accepted_time);
+									
 								}else {
 									accept_time = "您还未签收";
+									
 								}
-
-								var contact = data.list[j].contact;
-								var deliv_type = data.list[j].delivery_type;
-								var storeName = data.list[j].store_name;
+								var contact = data[j].contact;
+								var deliv_type = data[j].delivery_type;
 								var reStatus=null;
 
-								if (data.list[j].status == "accepted"||data.list[j].status == "accounted") {
-									reStatus = '<span class="mui-card-link"><button type="button" class="mui-btn mui-btn-primary goReceive receivedBtn" disabled="disabled">已签收</button></span>';
+								// if (data[j].status == "accepted"||data[j].status == "accounted") {
+								// 	reStatus = '<span class="mui-card-link"><button type="button" class="mui-btn mui-btn-success goReceive" disabled="disabled">已签收</button></span>';
 									
 									
-								}else{
-									if (data.list[j].status == "delivered") {
-										reStatus = '<span class="mui-card-link"><button type="button" class="mui-btn mui-btn-primary goReceive">签收</button></span>';
-									}
+									
+								// }else{
+								// 	if (data[j].status == "delivered") {
+								// 		reStatus = '<span class="mui-card-link"><button type="button" class="mui-btn mui-btn-primary goReceive">签收</button></span>';
+										
+								// 	} else if (data[j].status == "waiting") {
+								// 		reStatus = '<span class="mui-card-link"><button type="button" class="mui-btn mui-btn-royal goReceive" disabled="disabled">未发货</button></span>';
+								// 	}
+								// }
+
+								switch (data[i].status) 
+								{
+									case "accepted":
+										reStatus = '<span class="mui-card-link"><button type="button" class="mui-btn mui-btn-success goReceive" disabled="disabled">已签收</button></span>';
+										break;
+									case "accounted":
+										reStatus = '<span class="mui-card-link"><button type="button" class="mui-btn mui-btn-warning goReceive" disabled="disabled">已核账</button></span>';
+										break;
+									case "delivered":
+										reStatus = '<span class="mui-card-link"><button type="button" class="mui-btn mui-btn-primary goReceive" disabled="disabled">未签收</button></span>';
+										break;
+									case "waiting":
+										reStatus = '<span class="mui-card-link"><button type="button" class="mui-btn mui-btn-royal goReceive" disabled="disabled">未发货</button></span>';
+										break;
+
 								}
 								
-								
 								var card_header = '<div class="mui-card-header"><label>' +deliv_name+ '</label><label>单号：<span>' +deliv_number+ '</span></label></div>';
-								var card_content = '<div class="mui-card-content"><div class="mui-card-content-inner"><label style="width: 50%; float: left;">发货时间:<br> <span>' +deliv_time+ '</span></label><label style="width: 50%;">收货时间:<br><span>'+accept_time+'</span></label></div></div>';
+								var card_content = '<div class="mui-card-content"><div class="mui-card-content-inner"><label style="width: 50%; float: left;">发货时间:<br> <span id="delivTime">' +deliv_time+ '</span></label><label style="width: 50%;">收货时间:<br><span id="acceptTime">'+accept_time+'</span></label></div></div>';
 								var card_footer = '<div class="mui-card-footer"><label class="mui-card-link" style="color:#000"><label>收货人:&nbsp</label><span id="oct_contact">'+contact+'</span></label><label class="mui-card-link"><input id="U_id" value=" '+Did+'   " type="hidden"></label><label class="mui-card-link"><input id="U_del" value="'+deliv_type+'" type="hidden"></label> '+reStatus+' </div>';
 								
 								
-								appendCardM += '<div class="mui-card"><a href = "#modal">'+card_header+card_content+card_footer+'</a></a></div>';
+								appendCardM += '<div class="mui-card"><a href = "#modal">'+card_header+card_content+card_footer+'</a></div>';
 								
 						});
 //						$("#j_loadmore").before(appendCardM);
@@ -353,18 +389,12 @@
 		});
 				
 		/*跳转详情页*/
-		$("#search_result").on("tap",".mui-card-header,.mui-card-content,.mui-card-footer",function(){
+		$("#search_result").on("tap",".mui-card-header,.mui-card-content",function(){
 		
 			var record_id = $(this).parents().find("#U_id").val();
-			var deli_type = $(this).parents().find("#U_del").val();
-			var myCard = $(this).closest(".mui-card");
-			$(".mui-card").each(function(){
-				$(this).removeClass("mui-active");
-			});
-			myCard.addClass("mui-active");
-			storage.setItem("delivery_type",deli_type);
+			console.log(record_id,typeof(record_id));//注意:这里的id是string类型
 			storage.setItem("id",record_id);
-			$("#modal iframe").attr('src','detail_info.html');			
+			location.href = encodeURI('/detailInfo/list?recordId=' + record_id);			
 
 		});
 		
@@ -375,7 +405,7 @@
 		});
 		
 		mui(".mui-bar-tab").on("tap","#tabbar_with_me",function(){
-			location.href = "/me";
+			location.href = "users/me";
 		});
 		
 		mui(".mui-bar-tab").on("tap","#tabbar_with_setting",function(){
