@@ -16,7 +16,7 @@ function MySQLClient() {
 
     MySQLClient.prototype.exec = function(sql, values, callback) {
         if (connection) {
-            console.log(sql);
+            // console.log(sql);
             connection.query(sql, values, callback);
         } else {
             console.log("mysql is unconnection");

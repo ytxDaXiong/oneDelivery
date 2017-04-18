@@ -16,6 +16,9 @@ var receivedGoods = require('./routes/receivedGoods');
 var forgetPassword = require('./routes/forgetPassword');
 var search = require('./routes/search');
 var detailInfo = require('./routes/detail_info');
+var expressSearch = require('./routes/expressSearch');
+var countEcharts = require('./routes/countEcharts');
+var Maps = require('./routes/map');
 var app = express();
 
 // view engine setup
@@ -57,6 +60,9 @@ app.use('/received', receivedGoods);
 app.use('/forgetPassword', forgetPassword);
 app.use('/search', search);
 app.use('/detailInfo',detailInfo);
+app.use('/expressSearch',expressSearch);
+app.use('/countEcharts',countEcharts);
+app.use('/Maps',Maps);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

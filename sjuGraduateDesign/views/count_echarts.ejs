@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>壹物流</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--标准mui.css-->
+		<link rel="stylesheet" href="/stylesheets/mui.min.css">
+		<style>
+			.chart {
+				height: 200px;
+				margin: 0px;
+				padding: 0px;
+			}
+			h5 {
+				margin-top: 30px;
+				font-weight: bold;
+			}
+			h5:first-child {
+				margin-top: 15px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">物流统计（EChart图表）</h1>
+		</header>
+		<div class="mui-content">
+			<div class="mui-content-padded">
+				<h5>各物流公司使用频次统计</h5>
+				<div class="chart" id="pieChart"></div>
+
+				<h5>各月物流统计</h5>
+				<div class="chart" id="barChart"></div>
+			</div>
+		</div>
+		<script src="/javascripts/mui.min.js"></script>
+		<script src="/javascripts/jquery-1.7.2-min.js"></script>
+		<script src="/javascripts/echarts-all.js"></script>
+		<script>
+			$(document).ready(function () {
+				//获取快递统计数据
+				var expressCount = '<%- JSON.stringify(express_count) %>';
+				console.log(expressCount);
+				expressCount = JSON.parse(expressCount);
+				var chartData = expressCount[0];
+				//获取状态统计数据(数据条数较少,用假数据显示效果)
+				var statusCount = '<%- JSON.stringify(status_count) %>';
+				console.log(statusCount);
+				statusCount = JSON.parse(statusCount);
+				var statusData = statusCount[0];
+				console.log(statusData);
+
+				//基于准备好的dom,初始化echarts实例
+				var myChart = echarts.init(document.getElementById('pieChart'));
+				//指定图表的配置项和数据
+				var	option = {
+					    tooltip: {
+					        trigger: 'item',
+					        formatter: "{a} <br/>{b}: {c} ({d}%)"
+					    },
+					    legend: {
+					        orient: 'vertical',
+					        x: 'left',
+					        data:['其他','圆通快递','德邦标准快递','德邦3.60特惠','申通快递','大田物流']
+					    },
+					    series: [
+					        {
+					            name:'物流频次',
+					            type:'pie',
+					            radius: ['50%', '70%'],
+					            avoidLabelOverlap: false,
+					            label: {
+					                normal: {
+					                    show: false,
+					                    position: 'center'
+					                },
+					                emphasis: {
+					                    show: true,
+					                    textStyle: {
+					                        fontSize: '20',
+					                        fontWeight: 'bold'
+					                    }
+					                }
+					            },
+					            labelLine: {
+					                normal: {
+					                    show: false
+					                }
+					            },
+					            data:[
+					                {value:chartData.count_100, name:'其他'},
+					                {value:chartData.count_101, name:'圆通快递'},
+					                {value:chartData.count_102, name:'德邦标准快递'},
+					                {value:chartData.count_103, name:'德邦3.60特惠'},
+					                {value:chartData.count_104, name:'申通快递'},
+					                {value:chartData.count_105, name:'大田物流'}
+					            ]
+					        }
+					    ]
+					};
+
+					// 使用刚指定的配置项和数据显示图表。
+        			myChart.setOption(option);
+
+
+        			//柱状图
+        			var barChart = echarts.init(document.getElementById('barChart'));
+
+        			var barOption = {
+					legend: {
+						data: ['已签收', '未签收']
+					},
+					grid: {
+						x: 35,
+						x2: 10,
+						y: 30,
+						y2: 25
+					},
+					toolbox: {
+						show: false,
+						feature: {
+							mark: {
+								show: true
+							},
+							dataView: {
+								show: true,
+								readOnly: false
+							},
+							magicType: {
+								show: true,
+								type: ['line', 'bar']
+							},
+							restore: {
+								show: true
+							},
+							saveAsImage: {
+								show: true
+							}
+						}
+					},
+					calculable: false,
+					xAxis: [{
+						type: 'category',
+						data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+					}],
+					yAxis: [{
+						type: 'value',
+						splitArea: {
+							show: true
+						}
+					}],
+					series: [{
+						name: '已签收',
+						type: 'bar',
+						data: [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3]
+					}, {
+						name: '未签收',
+						type: 'bar',
+						data: [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3]
+					}]
+				};
+
+				barChart.setOption(barOption);
+
+			});
+			
+
+
+		</script>
+	</body>
+
+</html>

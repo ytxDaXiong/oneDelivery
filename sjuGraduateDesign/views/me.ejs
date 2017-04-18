@@ -5,7 +5,6 @@
 		<title>壹物流</title>
 		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 		<meta name="format-detection" content="telephone=no" />
-
 		<meta name="apple-mobile-web-app-capable" content="yes">
 		<meta name="apple-mobile-web-app-status-bar-style" content="black">
 		<link href="/stylesheets/mui.min.css" rel="stylesheet" />
@@ -34,8 +33,6 @@
 				height: 60px;
 				
 			}
-
-			
 		</style>
 	</head>
 	<body>
@@ -74,8 +71,8 @@
 								<div class="oa-contact-avatar mui-table-cell">
 									<div class="userPicture">
 
-										<% if(avatar){ %>
-										<img id="preview" src=<%= avatar %> alt="默认头像" />
+										<% if(userInfo.avatar){ %>
+										<img id="preview" src=<%= userInfo.avatar %> alt="默认头像" />
 										<% } else { %>
 										<img id="preview" src="/images/60x60.gif" alt="默认头像" />
 										<% } %>
@@ -108,7 +105,19 @@
 							密码修改
 						</a>
 					</li>
-				</ul>
+
+					<li class="mui-table-view-cell" id="express_search">
+						<a class="mui-navigate-right">
+							快递查询
+						</a>
+					</li>
+
+					<li class="mui-table-view-cell" id="record_count">
+						<a class="mui-navigate-right">
+							记录统计
+						</a>
+					</li>
+			</ul>
 				
 				<ul class="mui-table-view" style="margin-top: 25px;">
 					<li class="mui-table-view-cell" id="logout">
@@ -153,13 +162,23 @@
 			
 			//用户信息与地址管理
 			$("#address_manage").on("tap",function(){
-				location.href = "/infmodApplication";
+				location.href = "/users/userInfo&address";
 			});
 
 			//修改密码
 			$("#change_password").on("tap",function(){
 				location.href = "/forgetPassword";
 			});
+
+			//快递查询
+			$("#express_search").on("tap", function(){
+				location.href = "/expressSearch";
+			})
+
+			//echarts统计
+			$("#record_count").on("tap", function(){
+				location.href = "/countEcharts";
+			})
 
 			/*登出*/
 			$("#logout").on("tap",function(){

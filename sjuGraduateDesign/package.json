@@ -20,6 +20,7 @@
     "serve-favicon": "~2.3.0",
     "mysql": "latest",
     "formidable": "latest",
-    "express-mysql-session": "latest"
+    "express-mysql-session": "latest",
+    "xto": "latest"
   }
 }

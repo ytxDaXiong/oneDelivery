@@ -38,7 +38,7 @@ router.post('/', function(req, res, next) {
 			res.send(error);
 		} else {
 			console.log('select * from delivery_user_address where store_user_name=?AND store_pwd=? success');
-
+			console.log(rows[0]);
 			if (rows.length == 0) {
 				var error = {
 					code: 400,

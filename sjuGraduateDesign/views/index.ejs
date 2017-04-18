@@ -96,7 +96,7 @@
 							console.log(result);
 							var data = result.items
 							storage.setItem("delivered_num",result.deliNumber);
-							if (data.delivered_num == 0) {
+							if (result.deliNumber == 0) {
 								$("#mui-badge").toggle();
 							} else{
 								$("#mui-badge").html(result.deliNumber);

@@ -15,27 +15,67 @@ mysqlClient.connect(function (err) {
 /* GET users listing. */
 /*me page*/
 router.get('/me', function(req, res, next) {
-  var RSU = req.session.user;
-  var userAvatar = RSU.avatar;
-  var contact = RSU.contact;
-  var storeName = RSU.store_name;
-  var address = RSU.address;
+  // var RSU = req.session.user;
+  // var userAvatar = RSU.avatar;
+  // var contact = RSU.contact;
+  // var storeName = RSU.store_name;
+  // var address = RSU.address;
 
-  var userInfo = {
-    contact: contact,
-    storeName: storeName,
-    address:address
-  }
+  // var userInfo = {
+  //   contact: contact,
+  //   storeName: storeName,
+  //   address:address
+  // }
 
-  if (userAvatar) {
-    console.log("userAvatar:"+userAvatar);
-    var avatar = userAvatar.substring(userAvatar.indexOf("/"),userAvatar.length);
-    console.log("avatar:"+avatar);
-    res.render('me', {avatar: avatar,userInfo:userInfo});
-    return;
+  // if (userAvatar) {
+  //   console.log("userAvatar:"+userAvatar);
+  //   var avatar = userAvatar.substring(userAvatar.indexOf("/"),userAvatar.length);
+  //   console.log("avatar:"+avatar);
+  //   res.render('me', {avatar: avatar,userInfo:userInfo});
+  //   return;
+  // } else {
+  //   res.render('me', {avatar: null,userInfo:userInfo});
+  //   return;
+  // }
+
+  if (req.session.user) {
+    // console.log("usersPage:"+req.session.user);
+    var user = req.session.user;
+    mysqlClient.exec('SELECT * FROM delivery_user_address WHERE id = ?', [user.id], function(err, rows, field){
+      if (err) {
+        console.log(err.stack);
+        var result = {
+          code: 500,
+          message: '服务端异常'
+        }
+        res.send(result);
+      } else {
+        console.log('select user info success');
+        console.log(rows);
+        if (rows.length > 0) {
+          userAvatar = rows[0].avatar;
+          var Navatar = '';
+          if (userAvatar) {
+            Navatar = userAvatar.substring(userAvatar.indexOf("/"),userAvatar.length);
+            console.log("avatar:"+Navatar);
+          }
+          var userInfo = {
+            contact: rows[0].contact,
+            tel: rows[0].tel,
+            storeName: rows[0].store_name,
+            address: rows[0].address,
+            avatar: Navatar
+          };
+
+          res.render('me',{userInfo: userInfo});
+        } else {
+          console.log("error, sql无此用户记录");
+        }
+      }
+    });
+
   } else {
-    res.render('me', {avatar: null,userInfo:userInfo});
-    return;
+    console.log("session为空！");
   }
   
  
@@ -112,10 +152,10 @@ router.post('/upload', function(req, res, next) {
               displayUrl:newPath
           }
 
-          var rsUser = req.session.user;
-          if (rsUser) {
-            rsUser.avatar = newPath;
-          }
+          // var rsUser = req.session.user;
+          // if (rsUser) {
+          //   rsUser.avatar = newPath;
+          // }
           res.send(result);
         }
       });
@@ -123,5 +163,8 @@ router.post('/upload', function(req, res, next) {
   	}
   });
 });
+
+/* userInfo and address*/
+router.use('/userInfo&address',require('./userInfoAddress'));
 
 module.exports = router;

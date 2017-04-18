@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>壹物流</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<meta name="format-detection" content="telephone=no" />
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<link href="/stylesheets/mui.min.css" rel="stylesheet" />
+		<link href="/stylesheets/main.css" rel="stylesheet" />
+		<link href="/stylesheets/iconfont.css" rel="stylesheet" />
+		<link href="/stylesheets/mui.picker.min.css" rel="stylesheet" />
+		<link href="/stylesheets/octmami.css" rel="stylesheet" />
+		<style type="text/css">
+			.logis_list {
+			    border: 1px solid #d9d9d9;
+			    border-left: none;
+			    border-right: none;
+			     padding: 0; 
+			    background: #fff;
+			}
+		</style>
+	</head>
+	<body>
+		<header class="mui-bar mui-bar-nav">
+		    <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+		    <h1 class="mui-title">快递查询工具</h1>
+		</header>
+		
+		<div class="mui-content">	
+			<form class="mui-input-group" style="margin-top: 20px;">
+				<div class="mui-input-row">
+					<label>快递公司</label>
+					<input id='company_name' type="text" class="mui-input-clear mui-input" placeholder="请输入快递公司名称">
+				</div>
+				<div class="mui-input-row">
+					<label>快递单号</label>
+					<input id='express_number' type="text" class="mui-input-clear mui-input" placeholder="请输入快递单号">
+				</div>
+				<div class="mui-button-row">
+					<button type="button" id="oct_search" class="mui-btn mui-btn-primary" onclick="return false;" style="margin-right: 50px;">查询</button>&nbsp;&nbsp;
+					<button type="button" id="oct_reset" class="mui-btn mui-btn-danger" onclick="return false;">重置</button>
+				</div>
+			</form>
+				
+				<div id="search_result">
+				<!--物流-->
+				  <div class="logis_list">
+				    <div class="logis_set">
+				      <ul>
+				      </ul>
+				    </div>
+				  </div>
+				<!--物流-->		
+				</div>
+			  
+
+		</div>
+		
+		<script src="/javascripts/mui.min.js"></script>
+		<script src="/javascripts/jquery-1.7.2-min.js"></script>
+		<script src="/javascripts/mui.picker.min.js"></script>
+		<script src="/javascripts/time.js"></script>
+		<script>
+
+
+
+
+		mui(".mui-content").on("tap","#oct_search",function(){
+			var companyName = $("#company_name").val();
+			var expressNumber = $("#express_number").val();
+			console.log(companyName,expressNumber);
+			// 快递查询
+			$.ajax({
+				type:"GET",
+				url:"/expressSearch/express/query",
+				dataType:"json",
+				async:true,
+				data:{
+					companyName:companyName,
+					expressNumber:expressNumber
+				},
+				success:function(result){
+					console.log(typeof(result));
+					console.log(result.data,typeof(result.status));
+					if (result.data.length === 0) {
+						mui.alert("sorry！无此条记录");
+						return;
+					}
+
+					if (result.status === "200") {
+						var appendCard = '';
+						$.each(result.data,function(i){
+							appendCard += '<li class="logis_detail_l"><div class="logis_detail_box"><label class="logis_dt_icn"></label><p>'+result.data[i].context+'</p><p>'+result.data[i].time+'</p></div></li>'
+							$("#search_result ul").append(appendCard);
+						});
+
+						$("#search_result ul").find("li:first").addClass("act");
+						return;
+						
+					} else {
+						mui.alert(result.data.message);
+						return
+						
+					}
+
+				},
+				error:function(err){
+					console.log(err);
+				}
+			});
+		});
+			
+
+		
+		</script>
+	</body>
+</html>
+
+
